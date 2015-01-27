@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx
+   	http://www.springframework.org/schema/tx/spring-tx.xsd
+   	http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- <context:property-placeholder location="classpath:jdbc.properties" 
+		/> -->
+
+	<!-- 数据源定义,使用 C3P0连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
+		<property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
+		<property name="acquireRetryDelay" value="${jdbc.acquireRetryDelay}" />
+		<property name="autoCommitOnClose" value="${jdbc.autoCommitOnClose}" />
+		<property name="checkoutTimeout" value="${jdbc.checkoutTimeout}" />
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+	</bean>
+
+	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/cms/mapping/userMapper.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sessionFactory"></constructor-arg>
+	</bean>
+
+	<!-- 数据库事务策略 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+
+	<!-- <tx:advice id="txAdvice" transaction-manager="transactionManager"> -->
+	<!-- <tx:attributes> -->
+	<!-- <tx:method name="save*" propagation="REQUIRED" /> -->
+	<!-- <tx:method name="ins*" propagation="REQUIRED" /> -->
+	<!-- <tx:method name="del*" propagation="REQUIRED" /> -->
+	<!-- <tx:method name="update*" propagation="REQUIRED" /> -->
+	<!-- <tx:method name="find*" read-only="true" /> -->
+	<!-- <tx:method name="get*" read-only="true" /> -->
+	<!-- <tx:method name="select*" read-only="true" /> -->
+	<!-- <tx:method name="*" propagation="REQUIRED" /> -->
+	<!-- </tx:attributes> -->
+	<!-- </tx:advice> -->
+
+	<!-- <aop:config proxy-target-class="true"> -->
+	<!-- <aop:advisor pointcut="execution( * com.weshare.*.api.service.*.*(..))" -->
+	<!-- advice-ref="txAdvice" /> -->
+	<!-- </aop:config> -->
+</beans>
